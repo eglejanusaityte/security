@@ -1,66 +1,69 @@
 package com.security.security.business.service.impl;
 
+import com.security.security.business.enums.Role;
 import com.security.security.business.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.MacAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import com.security.security.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
 @Service
 public class JwtServiceImpl implements JwtService {
 
-  @Value("${application.security.jwt.expiration}")
-  private long jwtExpiration;
+    @Value("${application.security.jwt.expiration}")
+    private long jwtExpiration;
 
-  public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
-  }
+    @Value("${application.security.jwt.secret-key}")
+    private String SECRET_KEY;
 
-  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
-  }
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
 
-  public String generateToken(UserDetails userDetails) {
-    return buildToken(userDetails, jwtExpiration);
-  }
+    public boolean isAdmin(String token){
+        final Claims claims = extractAllClaims(token);
+        return claims.get("role").equals(Role.ADMIN);
+    }
 
-  private String buildToken(
-          UserDetails userDetails,
-          long expiration
-  ) {
-    MacAlgorithm alg = Jwts.SIG.HS512;
-    SecretKey key = alg.key().build();
-    return Jwts.builder().claim("username", userDetails.getUsername())
-          .issuedAt(new Date(System.currentTimeMillis()))
-          .expiration(new Date(System.currentTimeMillis() + expiration))
-          .signWith(key, alg).compact();
-  }
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
 
-  public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-  }
+    public String generateToken(User userDetails) {
+        return buildToken(userDetails, jwtExpiration);
+    }
 
-  private boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-  }
+    private String buildToken(
+            User userDetails,
+            long expiration
+    ) {
+        byte[] secret = Decoders.BASE64.decode(SECRET_KEY);
+        return Jwts.builder().subject(userDetails.getUsername())
+                .claim("role", userDetails.getRole())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(Keys.hmacShaKeyFor(secret), Jwts.SIG.HS512).compact();
+    }
 
-  private Date extractExpiration(String token) {
-    return extractClaim(token, Claims::getExpiration);
-  }
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
 
-  private Claims extractAllClaims(String token) {
-    MacAlgorithm alg = Jwts.SIG.HS512;
-    SecretKey key = alg.key().build();
+    private boolean isTokenExpired(String token) {
+        return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
 
-    return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
-  }
-
+    private Claims extractAllClaims(String token) {
+        byte[] secret = Decoders.BASE64.decode(SECRET_KEY);
+        return Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret)).build().parseSignedClaims(token).getPayload();
+    }
 }

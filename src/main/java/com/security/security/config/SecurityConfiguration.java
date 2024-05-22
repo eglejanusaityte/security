@@ -24,7 +24,13 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/ws/**"};
+    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/api/v1/jwt/**", "/ws/**"};
+    private static final String[] SWAGGER_WHITE_LIST = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-resources",
+    };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
@@ -39,6 +45,8 @@ public class SecurityConfiguration {
                         req
                                 .requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                .requestMatchers(SWAGGER_WHITE_LIST)
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -51,7 +59,7 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080/", "http://localhost:3030/"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081/", "http://localhost:3000/"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PATCH","PUT","OPTION"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Access-Control-Allow-Headers",
                 "Access-Control-Allow-Credentials", "X-Requested-With, content-type"));

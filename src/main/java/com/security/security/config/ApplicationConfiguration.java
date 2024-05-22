@@ -22,36 +22,36 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
 
-  private final UserRepository repository;
+    private final UserRepository repository;
 
-  @Autowired
-  private UserMapper userMapper;
+    @Autowired
+    private UserMapper userMapper;
 
-  @Bean
-  public UserDetailsService userDetailsService(){
-    return username -> {
-      Optional<UserDAO> userDAOOptional = Optional.ofNullable(repository.findByEmail(username));
-      return userDAOOptional.map(userDAO -> userMapper.userDAOToUser(userDAO))
-              .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    };
-  }
+    @Bean
+    public UserDetailsService userDetailsService(){
+        return username -> {
+            Optional<UserDAO> userDAOOptional = Optional.ofNullable(repository.findByEmail(username));
+            return userDAOOptional.map(userDAO -> userMapper.userDAOToUser(userDAO))
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        };
+    }
 
-  @Bean
-  public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(userDetailsService());
-    authProvider.setPasswordEncoder(passwordEncoder());
-    return authProvider;
-  }
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-  }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 }
