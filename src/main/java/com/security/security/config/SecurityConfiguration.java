@@ -1,5 +1,7 @@
 package com.security.security.config;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@SecurityScheme(name = "Authorization",type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
 public class SecurityConfiguration {
 
     private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/api/v1/jwt/**", "/ws/**"};
@@ -56,11 +59,12 @@ public class SecurityConfiguration {
         ;
         return http.build();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081/", "http://localhost:3000/"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PATCH","PUT","OPTION"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PATCH", "PUT", "OPTION"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Access-Control-Allow-Headers",
                 "Access-Control-Allow-Credentials", "X-Requested-With, content-type"));
         configuration.setAllowCredentials(true);

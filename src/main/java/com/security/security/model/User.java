@@ -19,22 +19,22 @@ import java.util.Collection;
 @AllArgsConstructor
 public class User implements UserDetails {
 
-    @Schema(description = "The unique id of the user",
-            example = "1")
+    @Schema(description = "The unique id of the user", example = "1")
     private Long id;
 
-    @Schema(description = "The email of the user",
-            example = "example@email.com")
+    @Schema(description = "The email of the user", example = "example@email.com")
     @NonNull
     private String email;
 
-    @Schema(description = "The password of the user",
-            example = "password")
+    @Schema(description = "The username of the user", example = "example")
+    @NonNull
+    private String username;
+
+    @Schema(description = "The password of the user", example = "password")
     @NonNull
     private String password;
 
-    @Schema(description = "The role of the user",
-            example = "USER")
+    @Schema(description = "The role of the user", example = "USER")
     private Role role;
 
     @Schema(hidden = true)
@@ -46,7 +46,7 @@ public class User implements UserDetails {
     @Schema(hidden = true)
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Schema(hidden = true)

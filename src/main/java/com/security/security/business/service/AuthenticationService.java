@@ -7,5 +7,6 @@ import java.util.Map;
 
 public interface AuthenticationService {
     Map<String, Serializable> register(User user) throws IllegalArgumentException;
+
     Map<String, Serializable> login(User user);
 }

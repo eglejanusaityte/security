@@ -28,9 +28,9 @@ public class ApplicationConfiguration {
     private UserMapper userMapper;
 
     @Bean
-    public UserDetailsService userDetailsService(){
+    public UserDetailsService userDetailsService() {
         return username -> {
-            Optional<UserDAO> userDAOOptional = Optional.ofNullable(repository.findByEmail(username));
+            Optional<UserDAO> userDAOOptional = Optional.ofNullable(repository.findByUsername(username));
             return userDAOOptional.map(userDAO -> userMapper.userDAOToUser(userDAO))
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         };

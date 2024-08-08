@@ -47,13 +47,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public Map<String, Serializable> login(User user) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        user.getPassword()
-                )
-        );
-        UserDAO userDAO = userRepository.findByEmail(user.getEmail());
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        UserDAO userDAO = userRepository.findByUsername(user.getUsername());
         user = UserMapper.INSTANCE.userDAOToUser(userDAO);
         String token = jwtService.generateToken(user);
         return Map.of("token", token);

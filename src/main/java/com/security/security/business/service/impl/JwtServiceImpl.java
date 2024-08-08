@@ -29,7 +29,7 @@ public class JwtServiceImpl implements JwtService {
 
     public boolean isAdmin(String token){
         final Claims claims = extractAllClaims(token);
-        return claims.get("role").equals(Role.ADMIN);
+        return claims.get("role").equals(Role.ADMIN.name());
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
