@@ -83,4 +83,5 @@ public class UserController {
         userService.updateUser(userDAO, username, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }
